@@ -1,7 +1,8 @@
 # Dungeons &amp; Large Language Models
 
 A text-based adventure game powered by OpenAI's GPT-4 and Flask, combining the worlds of Dungeons &amp; Dragons and artificial intelligence.
-Powered by a flask-based web application for an interactive fiction game with multimedia elements and user customization. Users can select a theme, create a character or choose a random one, and load a saved game state. The game presents a story with text, images, and audio, and allows users to interact by selecting from predefined options or entering custom ones.
+It's an interactive fiction game with multimedia elements and user customization. Users can select a theme, create a character or choose a random one, and load a saved game state. The game presents a story with text, images, and audio, and allows users to interact by selecting from predefined options or entering custom ones.  
+There is a blend of LLM and programatical parsing of action Options into buttons, dice rolls using random.randint, and more.
 
 Multiple AI modules are combined to generate a world, plot, character, with unique prompting. There is also a save feature
 
