@@ -162,7 +162,7 @@ def generate_random_theme():
     return reply_content
 
 def img_prompt_from(character, text):
-    prompt = f"Craft a 5-15 word visual description to depict this DnD scene, avoiding using names of characters of locations as the recipient has no context: {text}"
+    prompt = f"Craft a 10-20 word visual description to depict this DnD scene. Because the recipient has no context, include visual descriptions of characters and locations: {text}"
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": f"{CHARACTER_SHEET_SPLIT_STRING}{character}"}, {"role": "system", "content": prompt}],
@@ -181,16 +181,35 @@ def sentence_to_word(sentence):
     reply_content = completion.choices[0].message.content
     return reply_content
 
+# Extract the important context from the message history, to be given to the more expensive model
+def extract_context(message_history):
+    context_prompt = "Given the previous conversation in a DnD game, extract the important context that will be necessary for the next response. Be concise and extract all relevant information (such as player location, status, relationships, and any items they have acquired) into bullet points."
+    completion = openai.ChatCompletion.create(
+        model=DEFAULT_MODEL_CHEAP,
+        messages=message_history + [{"role": "system", "content": context_prompt}],
+        max_tokens=150
+    )
+    audit_tokens(completion)
+    # Grab the generated summary from the API response
+    context_summary = completion.choices[0].message.content.strip()
+
+    return context_summary
+
 # Define a function to generate a chat response using the OpenAI API
 def chat(inp, message_history, role="user"):
-
-    # Append the input message to the message history
     message_history.append({"role": role, "content": f"{inp}"})
+    important_details = extract_context(message_history)
+    print(f"Extracted context: {important_details}")
+    prompt = """You are an AI game master for a single-player fantasy adventure. Present immersive narratives and 3-5 decision points, formatted for easy parsing and button conversion (e.g. 'Option 1: Travel to the tavern for information'). For those options with checks, attacks, or chance, include relevant ability/skill, die roll, and modifier (e.g., 'Option 2: Pick the lock <dexterity> (1d20+2)'). In special cases, add advantage/disadvantage using "kh/lh" notation (e.g., 'Option 3: Sneak past guard <stealth> (2d20kh1+3)'). Die rolls and advantage/disadvantage are handled programmatically. Maintain your game master role, avoiding assistant-like behavior. Treat custom responses (e.g., 'Custom: I cut off the vampire's head') as user attempts and predict outcomes based on context. Present choices as 'Option 1:', 'Option 2:', etc., balancing creativity and conciseness. Consider chance in determining outcomes.
 
+You're in an ongoing game without full message history. After this instruction is the player's character sheet, followed by world and session context notes. The user has just taken action."""
+    charcater_sheet = extract_character_sheet(message_history)
+    compressed_message_history = [{"role": "system", "content": prompt}, {"role": "system", "content": f"{CHARACTER_SHEET_SPLIT_STRING}{charcater_sheet}"}, {"role": "system", "content": important_details}, {"role": "user", "content": inp}]
     # Generate a chat response using the OpenAI API
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL,
-        messages=message_history
+        messages=compressed_message_history,
+        max_tokens=225
     )
     audit_tokens(completion)
     # Grab just the text from the API completion response
@@ -200,6 +219,21 @@ def chat(inp, message_history, role="user"):
     message_history.append({"role": "assistant", "content": f"{reply_content}"})
 
     # Return the generated response and the updated message history
+    return reply_content, message_history
+
+# Chat with full context, used for first message
+def chat_full(inp, message_history, role="user"):
+    message_history.append({"role": role, "content": f"{inp}"})
+
+    # Generate a chat response using the OpenAI API
+    completion = openai.ChatCompletion.create(
+        model=DEFAULT_MODEL,
+        messages=message_history
+    )
+    audit_tokens(completion)
+    reply_content = completion.choices[0].message.content
+
+    message_history.append({"role": "assistant", "content": f"{reply_content}"})
     return reply_content, message_history
 
 def parse_reply_content(reply_content):
@@ -215,3 +249,7 @@ def parse_reply_content(reply_content):
     for button_name in button_messages.keys():
         button_states[button_name] = False
     return text, button_messages, button_states
+
+def save_sys_prompt(prompt, filename):
+    with open(filename, "w") as f:
+        f.write(prompt)

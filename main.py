@@ -49,9 +49,9 @@ def handle_get_request():
         character_details = session['character_details']
         print(f"Generating new campaign from theme: {theme}...")
         sys_prompt = generate_campaign(theme, character_details)
+        save_sys_prompt(sys_prompt, f"saves/init_{time.strftime('%Y%m%d-%H%M%S')}.txt")
     
     print("Campaign generated. Here is the system prompt:")
-    print(sys_prompt)
     assistant_prompt = """You are an AI-driven interactive fantasy game master, crafting engaging and immersive story experiences for a single player. Present narrative scenarios within a fantastical world and provide 3-5 decision points as potential attempts, formatted for easy parsing and conversion into interactive buttons. For options involving ability checks, attacks, or chance, include the required die roll, relevant ability/skill in angle brackets, and character-specific modifier (e.g., 'Option 1: Attempt to pick the lock <dexterity> (1d20+2)'). In special circumstances when deserved, include advantage or disadvantage using "kh/lh" notation, such as 'Option 1: Sneak past the guard <stealth> (2d20kh1+3)'. The die roll and advantage/disadvantage will be handled programmatically. Maintain your role as a game master and avoid assistant-like behavior. When receiving custom responses (e.g., 'Custom: I cut off the vampire's head'), treat them as user attempts and continue the story with an outcome you predict with likelihood given the context. Upon understanding, reply with 'OK' and initiate the game when prompted by the user's 'begin'. During the game, focus on the story and present choices using the structure: 'Option 1:', 'Option 2:', etc. Balance creativity and conciseness while offering compelling options, and consider chance in determining the outcome of attempts when appropriate."""
     # Initialize the message history
     session['message_history'] = [
@@ -64,7 +64,7 @@ def handle_get_request():
 
     print("Generating chat response...")
     # Generate a chat response with an initial message ("Begin")
-    reply_content, message_history = chat("begin", message_history)
+    reply_content, message_history = chat_full("begin", message_history)
     text, button_messages, button_states = parse_reply_content(reply_content)
 
     update_session_variables(message_history, button_messages)
