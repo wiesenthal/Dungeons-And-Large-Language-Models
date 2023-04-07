@@ -1,6 +1,8 @@
 import openai
 import re
 
+from audit import audit_tokens
+
 openai.api_key = open("key.txt", "r").read().strip("\n")
 
 DEFAULT_MODEL = "gpt-4"
@@ -31,20 +33,22 @@ def generate_world(theme):
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": prompt}],
     )
+    audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     return reply_content
 
 def generate_plot(world):
-    prompt = f"""You are a Dungeon Master (DM) who is creating a plot. You have already written notes on the world, and will create a story that takes place in that world.
-    Write notes/an outline about the plot including plenty of options and freedom for the players to choose from, and how the plot will progress based on those choices.
-    Try to involve twists, and the players choices should have a significant impact on the plot, allowing for a wide variety of outcomes, decisions, and consequences.
-    The players can pick sides and choose their own paths, and the plot will progress based on their choices.
+    prompt = f"""You are a Dungeon Master (DM) who is creating a plot for one player. You have already written notes on the world, and will create a story that takes place in that world.
+    Write brief notes/an outline about the plot allowing for lots of player freedom. Be concise and use quick bullet points.
+    Use this space to involve secrets and twists, and the player's choices should have a significant impact on the plot, allowing for a wide variety of outcomes, decisions, and consequences.
+    The player can pick sides and choose their own paths, and the plot will progress based on their choices.
     Your world notes are following:
     {world}"""
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": prompt}],
     )
+    audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     return reply_content
 
@@ -71,6 +75,7 @@ def generate_character_sheet(name, race, character_class, level, physical_descri
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": prompt}],
     )
+    audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     return reply_content
 
@@ -86,6 +91,7 @@ def generate_random_character_details():
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": prompt}],
     )
+    audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     # Extract the character details from the response
     pattern = r"Name: (.*?)\nRace: (.*?)\nClass: (.*?)\nLevel: (\d+)\nPhysical Description: (.*?)\nPersonality Description: (.*?)$"
@@ -112,21 +118,27 @@ def save_character(message_history):
         model=DEFAULT_MODEL,
         messages= message_history + [{"role": "system", "content": prompt}]
     )
+    audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     return reply_content
 
 def save_actions(message_history):
     prompt = "You are an AI-driven interactive fantasy game master, responsible for maintaining and updating a concise record of the message history from ongoing sessions. The session has ended, so compress the message history while preserving essential information. Use brief notes summarizing the player's actions during the session, their current location and relationships, and any important outcomes or consequences of their decisions. Your goal is to create a clear and organized record that can be easily reviewed and referenced for future sessions, ensuring the continuity and consistency of the game experience."
     completion = openai.ChatCompletion.create(
-        model=DEFAULT_MODEL,
+        model=DEFAULT_MODEL_CHEAP,
         messages= message_history + [{"role": "system", "content": prompt}]
     )
+    audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     return reply_content
 
 def extract_campaign(message_history):
     sys_message = message_history[0]["content"]
     return sys_message.split(CAMPAIGN_SPLIT_STRING)[0]
+
+def extract_character_sheet(message_history):
+    sys_message = message_history[0]["content"]
+    return sys_message.split(CHARACTER_SHEET_SPLIT_STRING)[1]
 
 def save_history(message_history, filename):
     campaign = extract_campaign(message_history)
@@ -145,15 +157,17 @@ def generate_random_theme():
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": prompt}],
     )
+    audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     return reply_content
 
-def img_prompt_from(campaign, text):
+def img_prompt_from(character, text):
     prompt = f"Craft a 5-15 word visual description to depict this DnD scene, avoiding using names of characters of locations as the recipient has no context: {text}"
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL_CHEAP,
-        messages=[campaign, {"role": "system", "content": prompt}],
+        messages=[{"role": "system", "content": f"{CHARACTER_SHEET_SPLIT_STRING}{character}"}, {"role": "system", "content": prompt}],
     )
+    audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     return reply_content
 
@@ -163,6 +177,7 @@ def sentence_to_word(sentence):
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": prompt}],
     )
+    audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     return reply_content
 
@@ -177,7 +192,7 @@ def chat(inp, message_history, role="user"):
         model=DEFAULT_MODEL,
         messages=message_history
     )
-
+    audit_tokens(completion)
     # Grab just the text from the API completion response
     reply_content = completion.choices[0].message.content
 

@@ -27,7 +27,7 @@ def play():
         text, button_messages, button_states, message, result_message = handle_post_request()
 
     print("Generating prompt...")
-    img_prompt = img_prompt_from(session["message_history"][0], text)
+    img_prompt = img_prompt_from(extract_character_sheet(session['message_history']), text)
     print(f"Generating image from prompt: {img_prompt}...")
     image_url = get_img(img_prompt)
     print("Generating audio...")

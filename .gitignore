@@ -2,3 +2,4 @@
 __pycache__/
 *key.txt
 flask_session/
+saves/*
