@@ -16,11 +16,11 @@ app.secret_key = open('flask_key.txt', 'r').read()
 app.config['SESSION_TYPE'] = 'filesystem'
 csrf = CSRFProtect(app)
 Session(app)
+TITLE = "Dungeons & Large Language Models"
 
 # Define the homepage route for the Flask app
 @app.route('/play', methods=['GET', 'POST'])
 def play():
-    title = "GPT-Journey"
     if request.method == 'GET':
         text, button_messages, button_states, message, result_message = handle_get_request()
     else:
@@ -35,7 +35,7 @@ def play():
     session['audio_bytes'] = audio_bytes
     audio_url = f'/audio?{time.time()}'
 
-    return render_template('home.html', title=title, text=text, image_url=image_url, button_messages=button_messages, button_states=button_states, message=message, result_message=result_message, audio_url=audio_url)
+    return render_template('home.html', title=TITLE, text=text, image_url=image_url, button_messages=button_messages, button_states=button_states, message=message, result_message=result_message, audio_url=audio_url)
 
 def handle_get_request():
     button_messages = {}
@@ -176,7 +176,7 @@ def title_screen():
         
         
     else:
-        return render_template('title_screen.html', title="GPT-Journey")
+        return render_template('title_screen.html', title=TITLE)
 
 # Run the Flask app
 if __name__ == '__main__':
