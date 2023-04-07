@@ -1,0 +1,34 @@
+<!-- character_creation.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Character Creation</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+  </head>
+  <body>
+    <h1>Create Your Character</h1>
+    <form action="/character_creation" method="post">
+      <label for="name">Character Name:</label>
+      <input type="text" id="name" name="name" required><br>
+      
+      <label for="race">Character Race:</label>
+      <input type="text" id="race" name="race" required><br>
+      
+      <label for="character_class">Character Class:</label>
+      <input type="text" id="character_class" name="character_class" required><br>
+      
+      <label for="level">Character Level:</label>
+      <input type="number" id="level" name="level" min="1" required><br>
+      
+      <label for="physical_description">Physical Description:</label>
+      <textarea id="physical_description" name="physical_description" rows="4" cols="50" required></textarea><br>
+      
+      <label for="personality_description">Personality Description:</label>
+      <textarea id="personality_description" name="personality_description" rows="4" cols="50" required></textarea><br>
+      
+      <input type="submit" value="Create Character">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
+  </body>
+</html>

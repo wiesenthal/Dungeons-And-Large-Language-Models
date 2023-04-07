@@ -1,0 +1,139 @@
+Here are your notes about the world: World Theme: Hogwarts
+
+World History:
+- The world was created by the goddess of magic, who wanted to create a place where young witches and wizards could learn and grow.
+- She created Hogwarts School of Witchcraft and Wizardry, a castle filled with magical creatures and powerful secrets.
+- Over the years, the school has been through many trials and tribulations, including wars, betrayals, and dark magic.
+- But through it all, Hogwarts has remained a bastion of hope and learning for young witches and wizards.
+
+Geography and Climate:
+- Hogwarts is located in the Scottish Highlands, on the edge of a dark and mysterious forest.
+- The castle is surrounded by rolling hills and misty moors, with Victorian-era villages and small towns dotting the lands.
+- The climate is cool and damp, with frequent bouts of fog and rain.
+
+Culture:
+- The culture of Hogwarts is steeped in tradition and history, with a focus on academic achievement and magical excellence.
+- The school is divided into four houses – Gryffindor, Ravenclaw, Hufflepuff, and Slytherin – each with its own unique personality and values.
+- Students are encouraged to compete and excel in their classes, but also to work together and support each other.
+- There is a strong sense of community and loyalty within each house, but also a deep respect for the other houses and their achievements.
+
+Factions:
+- The Order of the Phoenix: a secret society of witches and wizards who fight against dark magic and protect the innocent.
+- Death Eaters: followers of the dark wizard Voldemort, who seek to establish a new world order where pure-blooded witches and wizards rule over all others.
+- Ministry of Magic: the governing body of the wizarding world, responsible for maintaining law and order and protecting the magical community from harm.
+
+Influential Characters:
+- Albus Dumbledore: Headmaster of Hogwarts and one of the most powerful wizards of all time.
+- Harry Potter: the Boy Who Lived, who defeated Voldemort and saved the wizarding world.
+- Severus Snape: a former Death Eater turned double agent and Potions Master at Hogwarts.
+- Hermione Granger: top student at Hogwarts and a brilliant witch who helps Harry and his friends on many adventures.
+- Ron Weasley: Harry's best friend and loyal companion.
+
+Magic Systems:
+- Wand Magic: the most common form of magic, which requires a wand and incantations to cast spells.
+- Potion Making: the art of mixing magical ingredients to produce powerful potions with various effects.
+- Divination: the practice of predicting the future or gaining insight into present events through magical means.
+- Transfiguration: the ability to transform objects or creatures into different forms, or to transform oneself into an animal.
+
+Races:
+- Humans: the dominant race in the wizarding world, with various ethnicities and cultures.
+- Goblins: short, intelligent creatures who are expert bankers and craftsmen.
+- House Elves: small, loyal creatures who serve wizards and witches.
+- Centaurs: half-human, half-horse beings who live in the Forbidden Forest and have a deep connection to magical divination.
+
+Creatures:
+- Dragons: powerful, fire-breathing creatures who are highly prized for their magical properties.
+- Thestrals: creatures that are invisible to most people, but can be seen by those who have witnessed death.
+- Hippogriffs: large, majestic creatures with the body of a horse and the wings and head of an eagle.
+- Basilisks: giant, serpent-like creatures with deadly gaze that can kill with a single look.
+
+Political Forces:
+- The Ministry of Magic: the governing body of the wizarding world, responsible for maintaining law and order and protecting the magical community from harm.
+- Death Eaters: followers of the dark wizard Voldemort, who seek to establish a new world order where pure-blooded witches and wizards rule over all others.
+- The Order of the Phoenix: a secret society of witches and wizards who fight against dark magic and protect the innocent.
+Here are your notes about the plot: Plot Outline:
+
+The players arrive at Hogwarts School of Witchcraft and Wizardry as new students, ready to embark on a journey of magical education and discovery. However, they quickly discover that there is more to Hogwarts than meets the eye. Dark forces are at work, and tensions between different factions are beginning to rise.
+
+1. The Sorting Ceremony: Upon their arrival at Hogwarts, the players are sorted into one of the four houses–Gryffindor, Ravenclaw, Hufflepuff, or Slytherin. This sets the stage for the players' relationships with their peers and their experiences at Hogwarts.
+
+2. A New Threat Emerges: As the players settle into their studies, they hear rumors of dark magic being practiced outside of Hogwarts. They investigate and discover that Death Eaters are trying to infiltrate the school, with the aim of finding a powerful magical artefact hidden within the castle.
+
+3. Choose Your Side: At this point, the players must decide where their loyalties lie. Do they align themselves with the Order of the Phoenix, who seek to protect the innocent and fight against dark magic? Or do they join forces with the Death Eaters, seeking power and control over the wizarding world? The players' choices here will have significant consequences for the story.
+
+4. The Race for the Artefact: With tensions rising, the players must race against the Death Eaters to find the magical artefact hidden within the castle. They must use all of their magical skills and knowledge to outsmart their opponents and gain possession of the artefact.
+
+5. The Final Confrontation: The players' choices up to this point have led them to this moment. Depending on their allegiances and actions, they will either fight alongside the Order of the Phoenix or the Death Eaters in a final showdown to determine the fate of Hogwarts and the wizarding world.
+
+6. Aftermath and Consequences: Regardless of the outcome, the players' choices will have lasting effects on the wizarding world. Depending on who they sided with and how they acted throughout the story, they may face consequences–either recognition and honor from the Ministry of Magic or punishment and exile for their actions. The players will have to live with the consequences of their choices and the impact they have had on the world around them.
+
+Twists:
+
+- The players may discover that the magical artefact they are searching for is not what they thought it was, and may have unforeseen consequences.
+- It may turn out that any of the influential characters, including Albus Dumbledore, are not what they seem, and may have hidden agendas.
+- One of the players may have a secret that could sway the outcome of the story, which only comes to light towards the end.
+~~~The previous are both private notes to you and as the DM you should make sure you keep them secret from the players, and let them discover the world and plot as they play.~~~
+Here is the players initial character sheet: Name: Henrik
+Race: Ratfolk
+Class: Bard
+Level: 11 -> unchanged
+
+Physical Description: Rat-human hybrid, ugly but well-kept. Carries a ukulele.
+
+Personality Description: Super friendly and funny, self-deprecating.
+
+Alignment: Chaotic Good
+
+Stats:
+- Strength: 8
+- Dexterity: 16
+- Constitution: 12
+- Intelligence: 14
+- Wisdom: 10
+- Charisma: 20
+
+Proficiencies and Languages:
+- Proficient in Acrobatics, Insight, Performance, and Persuasion
+- Speaks Common and Ratfolk
+- Can read and write Common and Ratfolk
+
+Special Abilities, Features, and Traits:
+- Bardic Inspiration (d10)
+- Jack of All Trades (half proficiency bonus to all non-proficient ability checks)
+- Song of Rest (1d10 added to hit point regain during short rests)
+- Countercharm (advantage on saving throws against being frightened or charmed)
+- Expertise (double proficiency bonus in Acrobatics and Performance)
+- Magical Secrets (can learn two spells from any class at level 6 and two more at level 10)
+
+Inventory:
+- Ukelele
+- Rapier
+- Leather Armor
+- Backpack containing rations, waterskin, mess kit, bedroll, healer's kit, and 50 feet of hempen rope
+- New item obtained: Wand of Magic Missiles
+
+Spellcasting/Magic:
+- Spellcasting Ability: Charisma
+- Spell Save DC: 18
+- Spell Attack Bonus: +10
+- Cantrips: Vicious Mockery, Prestidigitation, Message
+- Level 1: Charm Person, Healing Word, Tasha's Hideous Laughter, Thunderwave
+- Level 2: Detect Thoughts, Enhance Ability, Heat Metal, Shatter
+- Level 3: Hypnotic Pattern, Major Image, Dispel Magic, Fear
+- Level 4: Dimension Door, Freedom of Movement, Hallucinatory Terrain, Polymorph
+- Level 5: Animate Objects, Mass Cure Wounds, Modify Memory, Wall of Force
+
+Note: Henrik did not level up in this session, but obtained a new item.Here are your notes on the players actions from the pervious session: Player: Henrik the Ratfolk Bard
+
+Session Actions:
+- Henrik met Luna, a fellow student, before the sorting ceremony and discussed rumors of dark magic being practiced outside of Hogwarts. 
+- Henrik changed the subject and asked Luna about her favorite magical creatures.
+- Henrik eventually attended the sorting ceremony.
+
+Current Location: Great Hall, Hogwarts School of Witchcraft and Wizardry
+
+Relationships:
+- Met Luna, a fellow student.
+
+Outcomes/Consequences:
+- No major outcomes or consequences at this time.

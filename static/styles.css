@@ -1,0 +1,22 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  
+.options-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.options-container > div {
+  flex: 1;
+  text-align: center;
+  max-width: 25%;
+
+}
+
+.character-selection,
+.save-selection {
+  text-align: left;
+  }

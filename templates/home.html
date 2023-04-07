@@ -4,26 +4,70 @@
     <title>{{ title }}</title>
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1 class="mt-5">{{ title }}</h1>
         <img src="{{ image_url }}" class="img-fluid" alt="My Image">
+        {% if result_message %}<p>{{ result_message }}</p>{% endif %}
         <p>{{ text }}</p>
         {% for button_name, message in button_messages.items() %}
             <form method="POST">
                 <div class="mb-2">
                     <button name="button_name" value="{{ button_name }}" class="btn btn-primary">{{ message }}</button>
                 </div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             </form>
             {% if button_states[button_name] %}
                 <p>{{ message }}</p>
             {% endif %}
         {% endfor %}
+        <form method="POST">
+            <div class="mb-2">
+                <input type="text" name="custom_option" placeholder="Enter your custom option" class="form-control">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            </div>
+            <button type="submit" class="btn btn-secondary">Submit custom option</button>
+        </form>
+        <audio controls autoplay>
+            <source src="{{ audio_url }}" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+        <button id="save-btn" type="button" class="btn btn-success">Save Chat History</button>
     </div>
     <!-- Include Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function() {
+            // Add a click event listener to the save button
+            $('#save-btn').on('click', function() {
+                console.log("Saving campaign...")
+                // Send an AJAX POST request to the Flask app to save the campaign
+                $.ajax({
+                    url: '{{ url_for("save_campaign") }}',
+                    method: 'POST',
+                    data: {},
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRFToken': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            alert('Campaign saved successfully!');
+                        } else {
+                            alert('Error saving the campaign. Please try again.');
+                        }
+                    },
+                    error: function() {
+                        alert('Error saving the campaign. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+    
 </body>
 </html>

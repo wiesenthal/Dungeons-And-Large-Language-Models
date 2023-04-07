@@ -1,102 +1,93 @@
 # For the UI
-from flask import Flask, render_template, request, session
-# OpenAI API
-import openai
-# Regular expressions:
-import re
+from flask import Flask, render_template, request, session, send_file, redirect, url_for, jsonify
+from flask_session import Session
+from flask_wtf import CSRFProtect
+import time
 
-# Set the OpenAI API key
-openai.api_key = open("key.txt", "r").read().strip("\n")
+from audio_utils import generate_audio, get_audio
+from img_utils import get_img
+from text_utils import *
+from dice_utils import get_dice_result
 
 # Create a new Flask app and set the secret key
 app = Flask(__name__)
-app.secret_key = "mysecretkey"
-
-# Define a function to generate an image using the OpenAI API
-def get_img(prompt):
-    try:
-        response = openai.Image.create(
-            prompt=prompt,
-            n=1,
-            size="512x512"
-            )
-        img_url = response.data[0].url
-    except Exception as e:
-        # if it fails (e.g. if the API detects an unsafe image), use a default image
-        img_url = "https://pythonprogramming.net/static/images/imgfailure.png"
-    return img_url
-
-
-# Define a function to generate a chat response using the OpenAI API
-def chat(inp, message_history, role="user"):
-
-    # Append the input message to the message history
-    message_history.append({"role": role, "content": f"{inp}"})
-
-    # Generate a chat response using the OpenAI API
-    completion = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=message_history
-    )
-
-    # Grab just the text from the API completion response
-    reply_content = completion.choices[0].message.content
-
-    # Append the generated response to the message history
-    message_history.append({"role": "assistant", "content": f"{reply_content}"})
-
-    # Return the generated response and the updated message history
-    return reply_content, message_history
-
+# read the secret key from a file
+app.secret_key = open('flask_key.txt', 'r').read()
+app.config['SESSION_TYPE'] = 'filesystem'
+csrf = CSRFProtect(app)
+Session(app)
 
 # Define the homepage route for the Flask app
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    # Page's title:
+@app.route('/play', methods=['GET', 'POST'])
+def play():
     title = "GPT-Journey"
-    
-    # Initialize the button messages and button states dictionaries
+    if request.method == 'GET':
+        text, button_messages, button_states, message, result_message = handle_get_request()
+    else:
+        text, button_messages, button_states, message, result_message = handle_post_request()
+
+    print("Generating prompt...")
+    img_prompt = img_prompt_from(session["message_history"][0], text)
+    print(f"Generating image from prompt: {img_prompt}...")
+    image_url = get_img(img_prompt)
+    print("Generating audio...")
+    audio_bytes = generate_audio(text)
+    session['audio_bytes'] = audio_bytes
+    audio_url = f'/audio?{time.time()}'
+
+    return render_template('home.html', title=title, text=text, image_url=image_url, button_messages=button_messages, button_states=button_states, message=message, result_message=result_message, audio_url=audio_url)
+
+def handle_get_request():
     button_messages = {}
     button_states = {}
 
-    # If the request method is GET (i.e., the page has just been loaded), set up the initial chat
-    if request.method == 'GET':
+    if session.get('save_file', None):
+        print("Loading from file...")
+        sys_prompt = session['save_file']
+    else:
+        theme = session['theme']
+        character_details = session['character_details']
+        print(f"Generating new campaign from theme: {theme}...")
+        sys_prompt = generate_campaign(theme, character_details)
+    
+    print("Campaign generated. Here is the system prompt:")
+    print(sys_prompt)
+    assistant_prompt = """You are an AI-driven interactive fantasy game master, crafting engaging and immersive story experiences for a single player. Present narrative scenarios within a fantastical world and provide 3-5 decision points as potential attempts, formatted for easy parsing and conversion into interactive buttons. For options involving ability checks, attacks, or chance, include the required die roll, relevant ability/skill in angle brackets, and character-specific modifier (e.g., 'Option 1: Attempt to pick the lock <dexterity> (1d20+2)'). In special circumstances when deserved, include advantage or disadvantage using "kh/lh" notation, such as 'Option 1: Sneak past the guard <stealth> (2d20kh1+3)'. The die roll and advantage/disadvantage will be handled programmatically. Maintain your role as a game master and avoid assistant-like behavior. When receiving custom responses (e.g., 'Custom: I cut off the vampire's head'), treat them as user attempts and continue the story with an outcome you predict with likelihood given the context. Upon understanding, reply with 'OK' and initiate the game when prompted by the user's 'begin'. During the game, focus on the story and present choices using the structure: 'Option 1:', 'Option 2:', etc. Balance creativity and conciseness while offering compelling options, and consider chance in determining the outcome of attempts when appropriate."""
+    # Initialize the message history
+    session['message_history'] = [
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": assistant_prompt},
+        {"role": "assistant", "content": f"""OK"""}]
+    
+    # Retrieve the message history from the session
+    message_history = session['message_history']
 
-        # Initialize the message history
-        session['message_history'] = [{"role": "user", "content": """You are an interactive story game bot that proposes some hypothetical fantastical situation where the user needs to pick from 2-4 options that you provide. Once the user picks one of those options, you will then state what happens next and present new options, and this then repeats. If you understand, say, OK, and begin when I say "begin." When you present the story and options, present just the story and start immediately with the story, no further commentary, and then options like "Option 1:" "Option 2:" ...etc."""},
-                                      {"role": "assistant", "content": f"""OK, I understand. Begin when you're ready."""}]
-        
-        # Retrieve the message history from the session
-        message_history = session['message_history']
+    print("Generating chat response...")
+    # Generate a chat response with an initial message ("Begin")
+    reply_content, message_history = chat("begin", message_history)
+    text, button_messages, button_states = parse_reply_content(reply_content)
 
-        # Generate a chat response with an initial message ("Begin")
-        reply_content, message_history = chat("Begin", message_history)
-        
-        # Extract the text from the response
-        text = reply_content.split("Option 1")[0]
+    update_session_variables(message_history, button_messages)
+    
+    message = ""
+    result_message = ""
+    return text, button_messages, button_states, message, result_message
 
-        # Using regex, grab the natural language options from the response
-        options = re.findall(r"Option \d:.*", reply_content)
+def handle_post_request():
+    button_messages = {}
+    button_states = {}
 
-        # Create a dictionary of button messages
-        for i, option in enumerate(options):
-            button_messages[f"button{i+1}"] = option
-
-        # Initialize the button states
-        for button_name in button_messages.keys():
-            button_states[button_name] = False
-
-
-    # If the request method is POST (i.e., a button has been clicked), update the chat
-    message = None
-    button_name = None
-    if request.method == 'POST':
-
-        # Retrieve the message history and button messages from the session
-        message_history = session['message_history']
-        button_messages = session['button_messages']
-
-        # Get the name of the button that was clicked  ***
+    # Retrieve the message history and button messages from the session
+    message_history = session['message_history']
+    button_messages = session['button_messages']
+    
+    # Get the custom option from the form
+    custom_option = request.form.get('custom_option')
+    # Get the name of the button that was clicked
+    if custom_option:
+        message = f"Custom: {custom_option}"
+    else:
+        # Get the name of the button that was clicked
         button_name = request.form.get('button_name')
 
         # Set the state of the button to "True"
@@ -105,29 +96,87 @@ def home():
         # Get the message associated with the clicked button
         message = button_messages.get(button_name)
 
-        # Generate a chat response with the clicked message
-        reply_content, message_history = chat(message, message_history)
+    print(f"Recieved user message: {message}")
 
-        # Extract the text and options from the response
-        text = reply_content.split("Option 1")[0]
-        options = re.findall(r"Option \d:.*", reply_content)
+    result_message = get_dice_result(message)
 
-        # Update the button messages and states
-        button_messages = {}
-        for i, option in enumerate(options):
-            button_messages[f"button{i+1}"] = option
-        for button_name in button_messages.keys():
-            button_states[button_name] = False
+    print(f"Generating chat response...")
+    reply_content, message_history = chat(f"{message} {result_message}", message_history)
+    text, button_messages, button_states = parse_reply_content(reply_content)
 
+    update_session_variables(message_history, button_messages)
+
+    return text, button_messages, button_states, message, result_message
+
+def update_session_variables(message_history, button_messages):
     # Store the updated message history and button messages in the session
     session['message_history'] = message_history
     session['button_messages'] = button_messages
 
-    # Generate an image based on the chat response text    
-    image_url = get_img(text)
+@app.route('/save_campaign', methods=['POST'])
+def save_campaign():
+    print("Saving...")
+    message_history = session['message_history']
+    theme = session['theme']
+    world_title = sentence_to_word(theme)
 
-    # Render the template with the updated information
-    return render_template('home.html', title=title, text=text, image_url=image_url, button_messages=button_messages, button_states=button_states, message=message)
+    # Set a file name for the saved chat history
+    file_name = f"saves/{world_title}_{time.strftime('%Y%m%d-%H%M%S')}.txt"
+
+    # Save the chat history to a file
+    save_history(message_history, file_name)
+
+    return jsonify({'status': 'success'})
+
+@app.route('/audio')
+def audio():
+    return send_file(*get_audio(session.get('audio_bytes')))
+
+@app.route('/character_creation', methods=['GET', 'POST'])
+def character_creation():
+    if request.method == 'POST':
+        name = request.form['name']
+        race = request.form['race']
+        character_class = request.form['character_class']
+        level = request.form['level']
+        physical_description = request.form['physical_description']
+        personality_description = request.form['personality_description']
+
+        session['character_details'] = (name, race, character_class, level, physical_description, personality_description)
+
+        return redirect(url_for('play'))  # Redirect to a success page or another route as needed
+    else:
+        return render_template('character_creation.html')
+    
+    
+@app.route('/', methods=['GET', 'POST'])
+def title_screen():
+    if request.method == 'POST':
+        theme = request.form['theme']
+        if not theme.strip():
+            theme = generate_random_theme()
+        session['theme'] = theme
+
+        if 'load_save' in request.files and request.files['load_save'].filename:
+            save_file = request.files['load_save']
+            save_contents = save_file.read().decode('utf-8')
+            session['save_file'] = save_contents
+            session['character_details'] = None
+            session['theme'] = save_contents[0:20]
+            return redirect(url_for('play'))
+        else:
+            session['save_file'] = None
+
+        character_option = request.form['character_option']
+        if character_option == 'random_character':
+            session['character_details'] = generate_random_character_details()
+            return redirect(url_for('play'))
+        elif character_option == 'create_character':
+            return redirect(url_for('character_creation'))
+        
+        
+    else:
+        return render_template('title_screen.html', title="GPT-Journey")
 
 # Run the Flask app
 if __name__ == '__main__':
