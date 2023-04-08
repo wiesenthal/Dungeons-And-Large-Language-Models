@@ -6,7 +6,7 @@ There is a blend of LLM and programatical parsing of action Options into buttons
 
 Multiple AI modules are combined to generate a world, plot, character, with unique prompting. There is also a save feature
 
-### Note: Runs VERY SLOWLY due to the speed of api calls, is also quite expensive to run on your API key, use at the risk of your own wallet. Expect 10-60 second delays, and ~3 cents per action.
+### Note: Runs VERY SLOWLY due to the speed of api calls, is also quite expensive to run on your API key, use at the risk of your own wallet. Expect 60 second delay for campaign geneartion, and 10 seconds per action. Costs around 10 cents for campaign generation and ~3 cents per action.
 
 Inspired by sentdex.
 
