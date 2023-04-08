@@ -254,3 +254,9 @@ def parse_reply_content(reply_content):
 def save_sys_prompt(prompt, filename):
     with open(filename, "w") as f:
         f.write(prompt)
+
+def count_total_words(message_history):
+    word_count = 0
+    for message in message_history:
+        word_count += len(message["content"].split())
+    return word_count

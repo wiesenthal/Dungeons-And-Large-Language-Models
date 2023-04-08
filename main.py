@@ -1,5 +1,5 @@
 # For the UI
-from flask import Flask, render_template, request, session, send_file, redirect, url_for, jsonify
+from flask import Flask, render_template, request, session, send_file, redirect, url_for, jsonify, flash
 from flask_session import Session
 from flask_wtf import CSRFProtect
 import time
@@ -22,6 +22,9 @@ TITLE = "Dungeons & Large Language Models"
 # Define the homepage route for the Flask app
 @app.route('/play', methods=['GET', 'POST'])
 def play():
+    if count_total_words(session['message_history']) > 3500:
+            # Trigger the auto save using JavaScript
+            return render_template('auto_save.html')
     if request.method == 'GET':
         text, button_messages, button_states, message, result_message = handle_get_request()
     else:
@@ -133,7 +136,20 @@ def save_campaign():
     save_history(message_history, file_name)
     print(f"Saving took {time_audit()}s")
 
-    return jsonify({'status': 'success'})
+    return jsonify({'status': 'success', 'filename': file_name})
+
+@app.route('/auto_save_campaign', methods=['POST'])
+def auto_save_campaign():
+    if count_total_words(session['message_history']) > 3500:
+        filename = save_campaign().json['filename']
+        # open the file and read the contents
+        with open(filename, 'r') as file:
+            data = file.read()
+        session['save_file'] = data
+        session['message_history'] = []
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'not_saved'})
 
 @app.route('/audio')
 def audio():

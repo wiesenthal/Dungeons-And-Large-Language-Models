@@ -69,7 +69,7 @@
                     },
                     success: function(response) {
                         if (response.status === 'success') {
-                            alert('Campaign saved successfully!');
+                            alert('Campaign saved successfully! File saved to ' + response.filename + '.');
                         } else {
                             alert('Error saving the campaign. Please try again.');
                         }
