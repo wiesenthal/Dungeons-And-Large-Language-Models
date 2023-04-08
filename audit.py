@@ -1,3 +1,5 @@
+from time import time
+previous_time = time()
 total_cost = 0
 
 def audit_tokens(completion):
@@ -17,3 +19,11 @@ def audit_tokens(completion):
     cost = (completion.usage['prompt_tokens'] * COST_MAP[model][0] + completion.usage['completion_tokens'] * COST_MAP[model][1]) / 1000
     total_cost += cost
     print(f"Model: {model} | prompt: #{completion.usage['prompt_tokens']} completion: #{completion.usage['completion_tokens']} |  Cost: {cost} USD | Total Cost: {total_cost} USD")
+
+def time_audit():
+    ''' Get's the time since the last time this function was called.''' 
+    global previous_time
+    current_time = time()
+    time_diff = current_time - previous_time
+    previous_time = current_time
+    return round(time_diff, 2)

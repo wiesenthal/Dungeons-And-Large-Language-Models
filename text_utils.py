@@ -113,10 +113,11 @@ def generate_random_character_details():
     return character_data
 
 def save_character(message_history):
-    prompt = "You are an AI-driven interactive fantasy game master, responsible for maintaining and updating a concise record of the character sheet from ongoing sessions. Please output just the character sheet. Be sure to level up the character if you deem it worthy based on their achievements in the session. Update their inventory with any items obtained. The session has ended, so your goal is to create a clear and organized record that can be easily reviewed and referenced for future sessions, ensuring the continuity and consistency of the game experience."
+    character_sheet = extract_character_sheet(message_history)
+    prompt = f"You are an AI-driven interactive fantasy game master, responsible for maintaining and updating a concise record of the character sheet from ongoing sessions. Please output just the character sheet. Be sure to level up the character if you deem it worthy based on their achievements in the session. Update their inventory with any items obtained. The session has ended, so your goal is to create a clear and organized record that can be easily reviewed and referenced for future sessions, ensuring the continuity and consistency of the game experience. Here is their current character sheet: {character_sheet}"
     completion = openai.ChatCompletion.create(
-        model=DEFAULT_MODEL,
-        messages= message_history + [{"role": "system", "content": prompt}]
+        model=DEFAULT_MODEL_CHEAP,
+        messages= message_history[1:] + [{"role": "system", "content": prompt}]
     )
     audit_tokens(completion)
     reply_content = completion.choices[0].message.content
@@ -200,7 +201,7 @@ def chat(inp, message_history, role="user"):
     message_history.append({"role": role, "content": f"{inp}"})
     important_details = extract_context(message_history)
     print(f"Extracted context: {important_details}")
-    prompt = """You are an AI game master for a single-player fantasy adventure. Present immersive narratives and 3-5 decision points, formatted for easy parsing and button conversion (e.g. 'Option 1: Travel to the tavern for information'). For those options with checks, attacks, or chance, include relevant ability/skill, die roll, and modifier (e.g., 'Option 2: Pick the lock <dexterity> (1d20+2)'). In special cases, add advantage/disadvantage using "kh/lh" notation (e.g., 'Option 3: Sneak past guard <stealth> (2d20kh1+3)'). Die rolls and advantage/disadvantage are handled programmatically. Maintain your game master role, avoiding assistant-like behavior. Treat custom responses (e.g., 'Custom: I cut off the vampire's head') as user attempts and predict outcomes based on context. Present choices as 'Option 1:', 'Option 2:', etc., balancing creativity and conciseness. Consider chance in determining outcomes.
+    prompt = """You are an AI game master for a single-player fantasy adventure. Present concise but immersive narratives and 3-5 decision points, formatted for easy parsing and button conversion (e.g. 'Option 1: Travel to the tavern for information'). For those options with checks, attacks, or chance, include relevant ability/skill, die roll, and modifier (e.g., 'Option 2: Pick the lock <dexterity> (1d20+2)'). In special cases, add advantage/disadvantage using "kh/lh" notation (e.g., 'Option 3: Sneak past guard <stealth> (2d20kh1+3)'). Die rolls and advantage/disadvantage are handled programmatically. Maintain your game master role, avoiding assistant-like behavior. Treat custom responses (e.g., 'Custom: I cut off the vampire's head') as user attempts and predict outcomes based on context. Present choices as 'Option 1:', 'Option 2:', etc., balancing creativity and conciseness. Consider chance in determining outcomes.
 
 You're in an ongoing game without full message history. After this instruction is the player's character sheet, followed by world and session context notes. The user has just taken action."""
     charcater_sheet = extract_character_sheet(message_history)
@@ -209,7 +210,7 @@ You're in an ongoing game without full message history. After this instruction i
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL,
         messages=compressed_message_history,
-        max_tokens=225
+        max_tokens=250
     )
     audit_tokens(completion)
     # Grab just the text from the API completion response

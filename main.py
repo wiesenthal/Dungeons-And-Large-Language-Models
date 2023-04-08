@@ -8,6 +8,7 @@ from audio_utils import generate_audio, get_audio
 from img_utils import get_img
 from text_utils import *
 from dice_utils import get_dice_result
+from audit import time_audit
 
 # Create a new Flask app and set the secret key
 app = Flask(__name__)
@@ -26,6 +27,7 @@ def play():
     else:
         text, button_messages, button_states, message, result_message = handle_post_request()
 
+    time_audit()
     print("Generating prompt...")
     img_prompt = img_prompt_from(extract_character_sheet(session['message_history']), text)
     print(f"Generating image from prompt: {img_prompt}...")
@@ -34,6 +36,7 @@ def play():
     audio_bytes = generate_audio(text)
     session['audio_bytes'] = audio_bytes
     audio_url = f'/audio?{time.time()}'
+    print(f"Chat response generation took {time_audit()}s")
 
     return render_template('home.html', title=TITLE, text=text, image_url=image_url, button_messages=button_messages, button_states=button_states, message=message, result_message=result_message, audio_url=audio_url)
 
@@ -48,10 +51,12 @@ def handle_get_request():
         theme = session['theme']
         character_details = session['character_details']
         print(f"Generating new campaign from theme: {theme}...")
+        time_audit()
         sys_prompt = generate_campaign(theme, character_details)
+        print(f"Campaign generation took {time_audit()}s")
         save_sys_prompt(sys_prompt, f"saves/init_{time.strftime('%Y%m%d-%H%M%S')}.txt")
     
-    print("Campaign generated. Here is the system prompt:")
+    print("Campaign generated.")
     assistant_prompt = """You are an AI-driven interactive fantasy game master, crafting engaging and immersive story experiences for a single player. Present narrative scenarios within a fantastical world and provide 3-5 decision points as potential attempts, formatted for easy parsing and conversion into interactive buttons. For options involving ability checks, attacks, or chance, include the required die roll, relevant ability/skill in angle brackets, and character-specific modifier (e.g., 'Option 1: Attempt to pick the lock <dexterity> (1d20+2)'). In special circumstances when deserved, include advantage or disadvantage using "kh/lh" notation, such as 'Option 1: Sneak past the guard <stealth> (2d20kh1+3)'. The die roll and advantage/disadvantage will be handled programmatically. Maintain your role as a game master and avoid assistant-like behavior. When receiving custom responses (e.g., 'Custom: I cut off the vampire's head'), treat them as user attempts and continue the story with an outcome you predict with likelihood given the context. Upon understanding, reply with 'OK' and initiate the game when prompted by the user's 'begin'. During the game, focus on the story and present choices using the structure: 'Option 1:', 'Option 2:', etc. Balance creativity and conciseness while offering compelling options, and consider chance in determining the outcome of attempts when appropriate."""
     # Initialize the message history
     session['message_history'] = [
@@ -81,6 +86,10 @@ def handle_post_request():
     message_history = session['message_history']
     button_messages = session['button_messages']
     
+    print("Request Form:")
+    print(request.form)
+    print(str(request.form))
+    print(list(request.form.items()))
     # Get the custom option from the form
     custom_option = request.form.get('custom_option')
     # Get the name of the button that was clicked
@@ -116,6 +125,7 @@ def update_session_variables(message_history, button_messages):
 @app.route('/save_campaign', methods=['POST'])
 def save_campaign():
     print("Saving...")
+    time_audit()
     message_history = session['message_history']
     theme = session['theme']
     world_title = sentence_to_word(theme)
@@ -125,6 +135,7 @@ def save_campaign():
 
     # Save the chat history to a file
     save_history(message_history, file_name)
+    print(f"Saving took {time_audit()}s")
 
     return jsonify({'status': 'success'})
 

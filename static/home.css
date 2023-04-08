@@ -1,0 +1,15 @@
+.clicked-button {
+    background-color: #35a622;
+    color: white;
+}
+
+.spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.spinner-container {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 5px;
+}
