@@ -1,11 +1,17 @@
 .clicked-button {
-    background-color: #4c005f;
+    background-color: #4c005f !important;
     color: white;
 }
 .clicked-button:hover {
-    background-color: #4c005f;
+    background-color: #4c005f !important;
     color: white;
 }
+
+button:disabled,button[disabled]{
+    opacity: 0.8;
+    cursor:not-allowed !important;
+  }
+
 
 .spinner-border {
     width: 1.5rem;

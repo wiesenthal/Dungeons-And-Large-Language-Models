@@ -1,6 +1,8 @@
 import re
 from random import randint
 
+DICE_PATTERN = r""
+
 def parse_dice_roll(message):
     dice_roll = re.search(r"(\d+d\d+(?:kh\d+|lh\d+)?(\+\d+)?)", message)
     if dice_roll:

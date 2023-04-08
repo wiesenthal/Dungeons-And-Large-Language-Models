@@ -52,11 +52,22 @@
         function showSpinner(button) {
             button.classList.add('clicked-button');
             button.parentElement.querySelector('.spinner-container').style.display = 'inline-block';
+            // add all other buttons to the disabled state
+            var buttons = document.querySelectorAll('button');
+            for (var i = 0; i < buttons.length; i++) {
+                if (!buttons[i].classList.contains('clicked-button')) {
+                    buttons[i].disabled = true;
+                }
+            }
+            // in 0.1 seconds add the disabled class to the clicked button
+            setTimeout(function() {
+                button.classList.add('disabled');
+            }, 100);
         }
         $(document).ready(function() {
             // Add a click event listener to the save button
             $('#save-btn').on('click', function() {
-                console.log("Saving campaign...")
+                alert("Saving campaign in background, takes about 20 seconds... Press OK to continue.")
                 // Send an AJAX POST request to the Flask app to save the campaign
                 $.ajax({
                     url: '{{ url_for("save_campaign") }}',
@@ -77,6 +88,7 @@
                         alert('Error saving the campaign. Please try again.');
                     }
                 });
+                $(this).hide();
             });
         });
     </script>

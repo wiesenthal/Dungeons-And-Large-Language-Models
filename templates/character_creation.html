@@ -19,7 +19,7 @@
       <input type="text" id="character_class" name="character_class" required><br>
       
       <label for="level">Character Level:</label>
-      <input type="number" id="level" name="level" min="1" required><br>
+      <input type="text" id="level" name="level"><br>
       
       <label for="physical_description">Physical Description:</label>
       <textarea id="physical_description" name="physical_description" rows="4" cols="50" required></textarea><br>
@@ -27,7 +27,7 @@
       <label for="personality_description">Personality Description:</label>
       <textarea id="personality_description" name="personality_description" rows="4" cols="50" required></textarea><br>
       
-      <input type="submit" value="Create Character">
+      <input type="submit" value="Create Character and Generate World">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
   </body>

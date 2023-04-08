@@ -150,7 +150,7 @@ def save_history(message_history, filename):
     character_sheet = save_character(message_history)
     print("Saving actions...")
     actions = save_actions(message_history)
-    save_string = f"{campaign}{CAMPAIGN_SPLIT_STRING}\n{CHARACTER_SHEET_SPLIT_STRING}{character_sheet}{ACTION_HISTORY_SPLIT_STRING}{actions}{LAST_MESSAGE_SPLIT_STRING}{message_history[-1]}"
+    save_string = f"{campaign}{CAMPAIGN_SPLIT_STRING}\n{CHARACTER_SHEET_SPLIT_STRING}{character_sheet}{ACTION_HISTORY_SPLIT_STRING}{actions}{LAST_MESSAGE_SPLIT_STRING}{message_history[-1]['content']}"
     
     with open(filename, "w") as f:
         f.write(save_string)
@@ -166,7 +166,7 @@ def generate_random_theme():
     return reply_content
 
 def img_prompt_from(character, text):
-    prompt = f"Craft a 10-20 word visual description to depict this DnD scene. Because the recipient has no context, include visual descriptions of characters and locations: {text}"
+    prompt = f"Craft a 10-15 word visual description to depict this DnD scene. Because the recipient has no context, include visual descriptions of characters and locations: {text}"
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": f"{CHARACTER_SHEET_SPLIT_STRING}{character}"}, {"role": "system", "content": prompt}],
@@ -204,7 +204,7 @@ def chat(inp, message_history, role="user"):
     message_history.append({"role": role, "content": f"{inp}"})
     important_details = extract_context(message_history)
     print(f"Extracted context: {important_details}")
-    prompt = """You are an AI game master for a single-player fantasy adventure. Present concise but immersive narratives and 3-5 decision points, formatted for easy parsing and button conversion (e.g. 'Option 1: Travel to the tavern for information'). For those options with checks, attacks, or chance, include relevant ability/skill, die roll, and modifier (e.g., 'Option 2: Pick the lock <dexterity> (1d20+2)'). In special cases, add advantage/disadvantage using "kh/lh" notation (e.g., 'Option 3: Sneak past guard <stealth> (2d20kh1+3)'). Die rolls and advantage/disadvantage are handled programmatically. Maintain your game master role, avoiding assistant-like behavior. Treat custom responses (e.g., 'Custom: I cut off the vampire's head') as user attempts and predict outcomes based on context. Present choices as 'Option 1:', 'Option 2:', etc., balancing creativity and conciseness. Balance story with player freedom. Consider chance in determining outcomes.
+    prompt = """You are an AI game master for a single-player fantasy adventure. Present a concise but immersive narrative followed by 3-5 Options, formatted for easy parsing and button conversion (e.g. 'Option 1: Travel to the tavern for information'). For those options with checks, attacks, or chance, include the relevant ability/skill, die roll, and modifier (e.g., 'Option 2: Pick the lock <dexterity> (1d20+2)'). In deserving cases, add advantage or disadvantage using "kh/lh" notation (e.g., 'Option 3: Sneak past guard <stealth> (2d20kh1+3)'). Die rolls and advantage/disadvantage are handled programmatically, so the format (e.g. 1d20+5) must be precise and the modifier must be a number. Do not include a die roll in the narrative. Maintain your game master role, avoiding assistant-like behavior. Treat custom responses (e.g., 'Custom: I cut off the vampire's head') as user attempts and predict outcomes based on context. Present choices as 'Option 1:', 'Option 2:', etc., balancing creativity and conciseness. Balance story with player freedom. Consider chance in determining outcomes.
 
 You're in an ongoing game without full message history. After this instruction is the player's character sheet, followed by world and session context notes. The user has just taken action."""
     charcater_sheet = extract_character_sheet(message_history)
