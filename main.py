@@ -18,11 +18,12 @@ app.config['SESSION_TYPE'] = 'filesystem'
 csrf = CSRFProtect(app)
 Session(app)
 TITLE = "Dungeons & Large Language Models"
+WORD_THRESHOLD = 2400
 
 # Define the homepage route for the Flask app
 @app.route('/play', methods=['GET', 'POST'])
 def play():
-    if count_total_words(session['message_history']) > 3500:
+    if count_total_words(session['message_history']) > WORD_THRESHOLD:
             # Trigger the auto save using JavaScript
             return render_template('auto_save.html')
     if request.method == 'GET':
@@ -46,10 +47,12 @@ def play():
 def handle_get_request():
     button_messages = {}
     button_states = {}
-
+    loaded_game = False
     if session.get('save_file', None):
         print("Loading from file...")
         sys_prompt = session['save_file']
+        if LAST_MESSAGE_SPLIT_STRING in sys_prompt:
+            loaded_game = True
     else:
         theme = session['theme']
         character_details = session['character_details']
@@ -60,19 +63,17 @@ def handle_get_request():
         save_sys_prompt(sys_prompt, f"saves/init_{time.strftime('%Y%m%d-%H%M%S')}.txt")
     
     print("Campaign generated.")
-    assistant_prompt = """You are an AI-driven interactive fantasy game master, crafting engaging and immersive story experiences for a single player. Present narrative scenarios within a fantastical world and provide 3-5 decision points as potential attempts, formatted for easy parsing and conversion into interactive buttons. For options involving ability checks, attacks, or chance, include the required die roll, relevant ability/skill in angle brackets, and character-specific modifier (e.g., 'Option 1: Attempt to pick the lock <dexterity> (1d20+2)'). In special circumstances when deserved, include advantage or disadvantage using "kh/lh" notation, such as 'Option 1: Sneak past the guard <stealth> (2d20kh1+3)'. The die roll and advantage/disadvantage will be handled programmatically. Maintain your role as a game master and avoid assistant-like behavior. When receiving custom responses (e.g., 'Custom: I cut off the vampire's head'), treat them as user attempts and continue the story with an outcome you predict with likelihood given the context. Upon understanding, reply with 'OK' and initiate the game when prompted by the user's 'begin'. During the game, focus on the story and present choices using the structure: 'Option 1:', 'Option 2:', etc. Balance creativity and conciseness while offering compelling options, and consider chance in determining the outcome of attempts when appropriate."""
-    # Initialize the message history
-    session['message_history'] = [
-        {"role": "system", "content": sys_prompt},
-        {"role": "user", "content": assistant_prompt},
-        {"role": "assistant", "content": f"""OK"""}]
-    
-    # Retrieve the message history from the session
-    message_history = session['message_history']
 
-    print("Generating chat response...")
-    # Generate a chat response with an initial message ("Begin")
-    reply_content, message_history = chat_full("begin", message_history)
+    if not loaded_game:
+        print("Generating chat response...")
+        reply_content, message_history = chat_begin(sys_prompt)
+    else:
+        print("Loading chat from save.")
+        sys_prompt, reply_content = sys_prompt.split(LAST_MESSAGE_SPLIT_STRING)
+        message_history = [
+            {"role": "system", "content": sys_prompt},
+            {"role": "assistant", "content": reply_content}]
+
     text, button_messages, button_states = parse_reply_content(reply_content)
 
     update_session_variables(message_history, button_messages)
@@ -140,16 +141,14 @@ def save_campaign():
 
 @app.route('/auto_save_campaign', methods=['POST'])
 def auto_save_campaign():
-    if count_total_words(session['message_history']) > 3500:
-        filename = save_campaign().json['filename']
-        # open the file and read the contents
-        with open(filename, 'r') as file:
-            data = file.read()
-        session['save_file'] = data
-        session['message_history'] = []
-        return jsonify({'status': 'success'})
-    else:
-        return jsonify({'status': 'not_saved'})
+    print("Auto-saving...")
+    filename = save_campaign().json['filename']
+    # open the file and read the contents
+    with open(filename, 'r') as file:
+        data = file.read()
+    session['save_file'] = data
+    session['message_history'] = []
+    return jsonify({'status': 'success'})
 
 @app.route('/audio')
 def audio():

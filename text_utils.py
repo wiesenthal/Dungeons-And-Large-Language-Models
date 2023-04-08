@@ -10,13 +10,14 @@ DEFAULT_MODEL_CHEAP = "gpt-3.5-turbo"
 CAMPAIGN_SPLIT_STRING = "~~~The previous are both private notes to you and as the DM you should make sure you keep them secret from the players, and let them discover the world and plot as they play.~~~"
 CHARACTER_SHEET_SPLIT_STRING = "Here is the players initial character sheet: "
 ACTION_HISTORY_SPLIT_STRING = "Here are your notes on the players actions from the pervious session: "
+LAST_MESSAGE_SPLIT_STRING = "Here is the last message you sent to the players: "
 
 
 def generate_campaign(theme, character_details):
     print("Generating world...")
     world = generate_world(theme)
-    print("Generating plot...")
-    plot = generate_plot(world)
+    print("Generating history...")
+    plot = generate_history(world)
     print("Generating character sheet...")
     character_sheet = generate_character_sheet(*character_details)
     return (f"Here are your notes about the world: {world}\nHere are your notes about the plot: {plot}\n{CAMPAIGN_SPLIT_STRING}\n{CHARACTER_SHEET_SPLIT_STRING}{character_sheet}\n ")
@@ -24,29 +25,31 @@ def generate_campaign(theme, character_details):
 def generate_world(theme):
     prompt = f"""You are a Dungeon Master (DM) who is creating a campaign. Focus on content creation, not on presentation, because these will be your personal notes so you don't have to hide any secrets from yourself. It doesn't have to be pretty, just functional and organized for your reference. 
     You are given a theme, and you must create a campaign world based on that theme. 
-    Write notes about the world including factions, influential characters, locations, magic systems, races, creatures, political forces, and more.
+    Write notes about the world including factions, influential characters, locations, magic systems, especially notable creatures/races, gods, and more.
     Don't worry about the plot yet, just focus on the world. Use your imagination and creativity to create a world that is interesting and fun to play in, with lots of depth and karmic interactions, and that will be fun to explore.
-    Include a brief outline of the history of the world, and a description of the world's geography, climate, and culture.
+    Focus the majority on the geography, describing the major continents, regions, cities, and landmarks, and their relationships to each other. 
+    Be creative and specific. Avoid vagueness.
+    Describe the factions that inhabit the regions, and their relationships to magic and any gods.
     The world is brimming with energy and potential for change.
     The theme is: {theme}"""
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": prompt}],
+        max_tokens=600
     )
     audit_tokens(completion)
     reply_content = completion.choices[0].message.content
     return reply_content
 
-def generate_plot(world):
-    prompt = f"""You are a Dungeon Master (DM) who is creating a plot for one player. You have already written notes on the world, and will create a story that takes place in that world.
-    Write brief notes/an outline about the plot allowing for lots of player freedom. Be concise and use quick bullet points.
-    Use this space to involve secrets and twists, and the player's choices should have a significant impact on the plot, allowing for a wide variety of outcomes, decisions, and consequences.
-    The player can pick sides and choose their own paths, and the plot will progress based on their choices.
-    Your world notes are following:
+def generate_history(world):
+    prompt = f"""You are a Dungeon Master (DM) who is creating a history for your campaign world. Focus on content creation, not on presentation, because these will be your personal notes so you don't have to hide any secrets from yourself. It doesn't have to be pretty, just functional and organized for your reference.
+    Include a long-term history and a short-term history. Focus on various faction dynamics and political forces, including the evolution of any magic or gods. Be concise and organized.
+    Here are your notes about the world:
     {world}"""
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": prompt}],
+        max_tokens=300
     )
     audit_tokens(completion)
     reply_content = completion.choices[0].message.content
@@ -147,7 +150,7 @@ def save_history(message_history, filename):
     character_sheet = save_character(message_history)
     print("Saving actions...")
     actions = save_actions(message_history)
-    save_string = f"{campaign}{CAMPAIGN_SPLIT_STRING}\n{CHARACTER_SHEET_SPLIT_STRING}{character_sheet}{ACTION_HISTORY_SPLIT_STRING}{actions}"
+    save_string = f"{campaign}{CAMPAIGN_SPLIT_STRING}\n{CHARACTER_SHEET_SPLIT_STRING}{character_sheet}{ACTION_HISTORY_SPLIT_STRING}{actions}{LAST_MESSAGE_SPLIT_STRING}{message_history[-1]}"
     
     with open(filename, "w") as f:
         f.write(save_string)
@@ -201,7 +204,7 @@ def chat(inp, message_history, role="user"):
     message_history.append({"role": role, "content": f"{inp}"})
     important_details = extract_context(message_history)
     print(f"Extracted context: {important_details}")
-    prompt = """You are an AI game master for a single-player fantasy adventure. Present concise but immersive narratives and 3-5 decision points, formatted for easy parsing and button conversion (e.g. 'Option 1: Travel to the tavern for information'). For those options with checks, attacks, or chance, include relevant ability/skill, die roll, and modifier (e.g., 'Option 2: Pick the lock <dexterity> (1d20+2)'). In special cases, add advantage/disadvantage using "kh/lh" notation (e.g., 'Option 3: Sneak past guard <stealth> (2d20kh1+3)'). Die rolls and advantage/disadvantage are handled programmatically. Maintain your game master role, avoiding assistant-like behavior. Treat custom responses (e.g., 'Custom: I cut off the vampire's head') as user attempts and predict outcomes based on context. Present choices as 'Option 1:', 'Option 2:', etc., balancing creativity and conciseness. Consider chance in determining outcomes.
+    prompt = """You are an AI game master for a single-player fantasy adventure. Present concise but immersive narratives and 3-5 decision points, formatted for easy parsing and button conversion (e.g. 'Option 1: Travel to the tavern for information'). For those options with checks, attacks, or chance, include relevant ability/skill, die roll, and modifier (e.g., 'Option 2: Pick the lock <dexterity> (1d20+2)'). In special cases, add advantage/disadvantage using "kh/lh" notation (e.g., 'Option 3: Sneak past guard <stealth> (2d20kh1+3)'). Die rolls and advantage/disadvantage are handled programmatically. Maintain your game master role, avoiding assistant-like behavior. Treat custom responses (e.g., 'Custom: I cut off the vampire's head') as user attempts and predict outcomes based on context. Present choices as 'Option 1:', 'Option 2:', etc., balancing creativity and conciseness. Balance story with player freedom. Consider chance in determining outcomes.
 
 You're in an ongoing game without full message history. After this instruction is the player's character sheet, followed by world and session context notes. The user has just taken action."""
     charcater_sheet = extract_character_sheet(message_history)
@@ -223,18 +226,25 @@ You're in an ongoing game without full message history. After this instruction i
     return reply_content, message_history
 
 # Chat with full context, used for first message
-def chat_full(inp, message_history, role="user"):
-    message_history.append({"role": role, "content": f"{inp}"})
+def chat_begin(sys_prompt):
+    assistant_prompt = """You are an AI-driven interactive fantasy game master, crafting engaging and immersive story experiences for a single player. Present narrative scenarios within a fantastical world and provide 3-5 decision points as potential attempts, formatted for easy parsing and conversion into interactive buttons. For options involving ability checks, attacks, or chance, include the required die roll, relevant ability/skill in angle brackets, and character-specific modifier (e.g., 'Option 1: Attempt to pick the lock <dexterity> (1d20+2)'). In special circumstances when deserved, include advantage or disadvantage using "kh/lh" notation, such as 'Option 1: Sneak past the guard <stealth> (2d20kh1+3)'. The die roll and advantage/disadvantage will be handled programmatically. Maintain your role as a game master and avoid assistant-like behavior. When receiving custom responses (e.g., 'Custom: I cut off the vampire's head'), treat them as user attempts and continue the story with an outcome you predict with likelihood given the context. Upon understanding, reply with 'OK' and initiate the game when prompted by the user's 'begin'. During the game, focus on the story and present choices using the structure: 'Option 1:', 'Option 2:', etc. Balance creativity and conciseness while offering compelling options, and consider chance in determining the outcome of attempts when appropriate."""
 
     # Generate a chat response using the OpenAI API
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL,
-        messages=message_history
+        messages=[
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": assistant_prompt},
+            {"role": "assistant", "content": "OK"}],
     )
     audit_tokens(completion)
     reply_content = completion.choices[0].message.content
+    message_history = [
+        {"role": "system", "content": sys_prompt},
+        {"role": "user", "content": "begin"},
+        {"role": "assistant", "content": f"{reply_content}"},
+    ]
 
-    message_history.append({"role": "assistant", "content": f"{reply_content}"})
     return reply_content, message_history
 
 def parse_reply_content(reply_content):
