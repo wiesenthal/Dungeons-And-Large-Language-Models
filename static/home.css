@@ -1,5 +1,9 @@
 .clicked-button {
-    background-color: #35a622;
+    background-color: #4c005f;
+    color: white;
+}
+.clicked-button:hover {
+    background-color: #7a0098;
     color: white;
 }
 
@@ -9,7 +13,8 @@
 }
 
 .spinner-container {
-    display: inline-block;
+    display: none;
     vertical-align: middle;
     margin-left: 5px;
+    color: black;
 }

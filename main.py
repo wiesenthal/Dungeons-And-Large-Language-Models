@@ -85,11 +85,7 @@ def handle_post_request():
     # Retrieve the message history and button messages from the session
     message_history = session['message_history']
     button_messages = session['button_messages']
-    
-    print("Request Form:")
-    print(request.form)
-    print(str(request.form))
-    print(list(request.form.items()))
+
     # Get the custom option from the form
     custom_option = request.form.get('custom_option')
     # Get the name of the button that was clicked

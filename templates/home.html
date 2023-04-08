@@ -3,9 +3,9 @@
 <head>
     <title>{{ title }}</title>
     <!-- Include Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
 </head>
 <body>
     <div class="container">
@@ -16,7 +16,11 @@
         {% for button_name, message in button_messages.items() %}
             <form method="POST">
                 <div class="mb-2">
-                    <button name="button_name" value="{{ button_name }}" class="btn btn-primary">{{ message }}</button>
+                    <button name="button_name" value="{{ button_name }}" class="btn btn-primary" onclick="showSpinner(this)">{{ message }}</button>
+                    <div class="spinner-container">
+                        <div class="spinner-border text-primary" role="status">
+                        </div>
+                    </div>
                 </div>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             </form>
@@ -29,7 +33,13 @@
                 <input type="text" name="custom_option" placeholder="Enter your custom option" class="form-control">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             </div>
-            <button type="submit" class="btn btn-secondary">Submit custom option</button>
+            <button type="submit" class="btn btn-secondary" onclick="showSpinner(this)">Submit custom option</button>
+            <div class="spinner-container">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <p>Loading...</p>
+            </div>
         </form>
         <audio controls autoplay>
             <source src="{{ audio_url }}" type="audio/mp3">
@@ -39,8 +49,11 @@
     </div>
     <!-- Include Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>    <script>
+        function showSpinner(button) {
+            button.classList.add('clicked-button');
+            button.parentElement.querySelector('.spinner-container').style.display = 'inline-block';
+        }
         $(document).ready(function() {
             // Add a click event listener to the save button
             $('#save-btn').on('click', function() {
