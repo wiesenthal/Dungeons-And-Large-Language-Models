@@ -166,7 +166,7 @@ def generate_random_theme():
     return reply_content
 
 def img_prompt_from(character, text):
-    prompt = f"Craft a 10-15 word visual description to depict this DnD scene. Because the recipient has no context, include visual descriptions of characters and locations: {text}"
+    prompt = f"Craft a 5-15 word visual description to depict this DnD scene. Because the recipient has no context, include visual descriptions of characters and locations: {text}"
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL_CHEAP,
         messages=[{"role": "system", "content": f"{CHARACTER_SHEET_SPLIT_STRING}{character}"}, {"role": "system", "content": prompt}],

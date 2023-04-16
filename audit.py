@@ -18,6 +18,8 @@ def audit_tokens(completion):
         model = "Unknown"
     cost = (completion.usage['prompt_tokens'] * COST_MAP[model][0] + completion.usage['completion_tokens'] * COST_MAP[model][1]) / 1000
     total_cost += cost
+    cost = round(cost, 2)
+    total_cost = round(total_cost, 2)
     print(f"Model: {model} | prompt: #{completion.usage['prompt_tokens']} completion: #{completion.usage['completion_tokens']} |  Cost: {cost} USD | Total Cost: {total_cost} USD")
 
 def time_audit():

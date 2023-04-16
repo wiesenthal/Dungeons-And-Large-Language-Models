@@ -165,7 +165,6 @@ def character_creation():
         personality_description = request.form['personality_description']
 
         session['character_details'] = (name, race, character_class, level, physical_description, personality_description)
-
         return redirect(url_for('play'))  # Redirect to a success page or another route as needed
     else:
         return render_template('character_creation.html')
@@ -185,6 +184,7 @@ def title_screen():
             session['save_file'] = save_contents
             session['character_details'] = None
             session['theme'] = save_contents[0:20]
+            session['message_history'] = []
             return redirect(url_for('play'))
         else:
             session['save_file'] = None

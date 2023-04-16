@@ -17,6 +17,8 @@ Inspired by sentdex.
 
 3. Create a `flask_key.txt` file in the root directory of the project and paste a Flask secret key (a secure, random string) into it.
 
+4. (Optional) Create an `eleven_labs_key.txt` file in the root directory of the project and paste your eleven labs API key to enable [eleven labs](elevenlabs.com) for text-to-speech synthesis.
+
 ## Running the Application
 Run the main module with python3.
 ```
