@@ -187,7 +187,7 @@ def sentence_to_word(sentence):
 
 # Extract the important context from the message history, to be given to the more expensive model
 def extract_context(message_history):
-    context_prompt = "Given the previous conversation in a DnD game, extract the important context that will be necessary for the next response. Be concise and extract all relevant information (such as player location, status, relationships, and any items they have acquired) into bullet points."
+    context_prompt = "Given the previous conversation in a DnD game, extract the important context that will be necessary for the next response. Be concise and extract all relevant information (such as player location, status, relationships, and any items they have acquired) into bullet points. If the player is in combat, include enough information about the status of the combat including the player's status, the foes involved, their statuses, and any important notes about the battlefield. The response will only have the character sheet and this context to work with, so it must be able to generate a response that is consistent with the previous conversation."
     completion = openai.ChatCompletion.create(
         model=DEFAULT_MODEL_CHEAP,
         messages=message_history + [{"role": "system", "content": context_prompt}],

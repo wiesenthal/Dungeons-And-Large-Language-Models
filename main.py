@@ -8,7 +8,7 @@ from audio_utils import generate_audio, get_audio
 from img_utils import get_img
 from text_utils import *
 from dice_utils import get_dice_result
-from audit import time_audit
+from audit import time_audit, get_audit
 
 # Create a new Flask app and set the secret key
 app = Flask(__name__)
@@ -26,12 +26,12 @@ def play():
     if count_total_words(session['message_history']) > WORD_THRESHOLD:
             # Trigger the auto save using JavaScript
             return render_template('auto_save.html')
+    time_audit()
     if request.method == 'GET':
         text, button_messages, button_states, message, result_message = handle_get_request()
     else:
         text, button_messages, button_states, message, result_message = handle_post_request()
 
-    time_audit()
     print("Generating prompt...")
     img_prompt = img_prompt_from(extract_character_sheet(session['message_history']), text)
     print(f"Generating image from prompt: {img_prompt}...")
@@ -41,8 +41,11 @@ def play():
     session['audio_bytes'] = audio_bytes
     audio_url = f'/audio?{time.time()}'
     print(f"Chat response generation took {time_audit()}s")
+    cost_diff, last_time_diff = get_audit()
+    session['total_cost'] = session['total_cost'] + cost_diff
+    audit_str = f"Last response took: {round(last_time_diff, 2)}s | Total Cost: ${round(session['total_cost'], 2)} "
 
-    return render_template('home.html', title=TITLE, text=text, image_url=image_url, button_messages=button_messages, button_states=button_states, message=message, result_message=result_message, audio_url=audio_url)
+    return render_template('home.html', title=TITLE, text=text, image_url=image_url, button_messages=button_messages, button_states=button_states, message=message, result_message=result_message, audio_url=audio_url, audit_str=audit_str)
 
 def handle_get_request():
     button_messages = {}
@@ -177,6 +180,8 @@ def title_screen():
         if not theme.strip():
             theme = generate_random_theme()
         session['theme'] = theme
+        
+        session['total_cost'] = 0
 
         if 'load_save' in request.files and request.files['load_save'].filename:
             save_file = request.files['load_save']
