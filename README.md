@@ -4,9 +4,12 @@ A text-based adventure game powered by OpenAI's GPT-4 and Flask, combining the w
 It's an interactive fiction game with multimedia elements and user customization. Users can select a theme, create a character or choose a random one, and load a saved game state. The game presents a story with text, images, and audio, and allows users to interact by selecting from predefined options or entering custom ones.  
 There is a blend of LLM and programatical parsing of action Options into buttons, dice rolls using random.randint, and more.
 
-Multiple AI modules are combined to generate a world, plot, character, with unique prompting. There is also a save feature
+Multiple AI modules are combined to generate a world, plot, character, with unique prompting. There is also a save feature.
 
-### Note: Runs VERY SLOWLY due to the speed of api calls, is also quite expensive to run on your API key, use at the risk of your own wallet. Expect 60 second delay for campaign generation, and 10 seconds per action. Costs around 10 cents for campaign generation and ~3 cents per action.
+## Demo (audio)
+https://github.com/wiesenthal/Dungeons-And-Large-Language-Models/assets/26258920/a12a5a96-a063-4ea4-99d5-d64ce20ea41d
+
+Note: Demo has the delay's cut out, but the program runs very slowly due to the speed of api calls, is also quite expensive to run on your API key, use at the risk of your own wallet. Expect 60 second delay for campaign generation, and 10 seconds per action. Costs around 10 cents for campaign generation and ~3 cents per action.
 
 Inspired by sentdex.
 
